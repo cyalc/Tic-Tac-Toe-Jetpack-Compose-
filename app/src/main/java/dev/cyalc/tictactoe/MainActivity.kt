@@ -3,18 +3,17 @@ package dev.cyalc.tictactoe
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -28,6 +27,8 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
+        val viewModel: GameViewModel by viewModels()
+
         setContent {
             val systemUiController = rememberSystemUiController()
             val useDarkIcons = MaterialTheme.colors.isLight
@@ -36,14 +37,16 @@ class MainActivity : ComponentActivity() {
             }
 
             TicTacToeTheme {
-                MainScreen()
+                MainScreen(viewModel)
             }
         }
     }
 }
+/*
 
+ */
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: GameViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -51,14 +54,9 @@ fun MainScreen() {
             .padding(16.dp),
         contentAlignment = Alignment.Center,
     ) {
-        GameBoard()
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    TicTacToeTheme {
-        MainScreen()
+        GameBoard(viewModel.gameState.boardData) { pawn ->
+            viewModel.onPawnClicked(pawn)
+        }
     }
 }
