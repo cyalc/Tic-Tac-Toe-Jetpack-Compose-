@@ -14,6 +14,11 @@ data class Player(
     val turn: Turn
 )
 
+data class Win(
+    val player: Player,
+    val pawns: List<Pawn>
+)
+
 enum class Turn {
     PLAYER_ONE,
     PLAYER_TWO

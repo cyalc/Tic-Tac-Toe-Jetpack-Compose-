@@ -16,13 +16,17 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import dev.cyalc.tictactoe.data.Pawn
-import dev.cyalc.tictactoe.data.Point
+import dev.cyalc.tictactoe.data.*
 import dev.cyalc.tictactoe.ui.theme.BackgroundColor
+import dev.cyalc.tictactoe.ui.theme.PawnColor
 import dev.cyalc.tictactoe.ui.theme.TicTacToeTheme
 
 
@@ -60,6 +64,7 @@ fun MainScreen(viewModel: GameViewModel) {
     ) {
         GameScreen(
             viewModel.gameState.boardData,
+            viewModel.gameState.win,
             viewModel::onPawnClicked,
             viewModel::onResetClicked
         )
@@ -70,6 +75,7 @@ fun MainScreen(viewModel: GameViewModel) {
 @Composable
 fun GameScreen(
     boardData: Array<Array<Pawn>>,
+    win: Win?,
     onPawnClicked: (Pawn) -> Unit,
     onResetClicked: () -> Unit
 ) {
@@ -80,12 +86,26 @@ fun GameScreen(
             .padding(16.dp),
         contentAlignment = Alignment.Center,
     ) {
-        GameBoard(boardData) { pawn -> onPawnClicked(pawn) }
+        GameBoard(boardData, win) { pawn -> onPawnClicked(pawn) }
         Button(
             onClick = { onResetClicked() },
-            modifier = Modifier.align(Alignment.TopEnd).padding(top = 16.dp)
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 16.dp)
         ) {
             Text(text = "Reset")
+        }
+        if (win != null) {
+            Text(
+                text = "Player ${win.player.chosenSign.displayValue} won!",
+                color = PawnColor,
+                fontSize = 36.sp,
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 32.dp),
+                )
         }
     }
 }
@@ -112,7 +132,13 @@ fun Preview() {
                 Pawn(null, Point(2, 2)),
             )
         ),
-        onPawnClicked = {},
-        onResetClicked = {}
-    )
+        win = Win(
+            player = Player(
+                chosenSign = PawnType.X,
+                turn = Turn.PLAYER_ONE
+            ),
+            pawns = emptyList()
+        ),
+        onPawnClicked = {}
+    ) {}
 }

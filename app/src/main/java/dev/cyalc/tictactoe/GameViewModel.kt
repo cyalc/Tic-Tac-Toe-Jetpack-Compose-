@@ -31,7 +31,8 @@ class GameViewModel : ViewModel() {
             chosenSign = PawnType.X,
             turn = Turn.PLAYER_ONE
         ),
-        boardData = initialBoard
+        boardData = initialBoard,
+        win = null
     )
 
     var gameState by mutableStateOf(initialGameState)
@@ -39,7 +40,9 @@ class GameViewModel : ViewModel() {
 
     fun onPawnClicked(pawn: Pawn) {
         val tileInfo = gameState.boardData[pawn.position.x][pawn.position.y]
-        if (tileInfo.value == null) nextTurn(pawn)
+        if (tileInfo.value == null && gameState.win == null) {
+            nextTurn(pawn)
+        }
     }
 
     fun onResetClicked() {
@@ -49,10 +52,27 @@ class GameViewModel : ViewModel() {
     private fun nextTurn(pawnClicked: Pawn) {
         val currentPlayer = gameState.player
         val currentBoard = gameState.boardData
+        val nextBoard = currentBoard.nextBoard(currentPlayer, pawnClicked)
         gameState = gameState.copy(
-            boardData = currentBoard.nextBoard(currentPlayer, pawnClicked),
-            player = currentPlayer.nextPlayer()
+            boardData = nextBoard,
+            player = currentPlayer.nextPlayer(),
+            win = isWin(nextBoard, currentPlayer)
         )
+    }
+
+    private fun isWin(board: Array<Array<Pawn>>, currentPlayer: Player): Win? {
+        board.forEach { pawnRow ->
+            if (pawnRow.all {
+                    it.value == currentPlayer.chosenSign
+                }) {
+                return Win(
+                    player = currentPlayer,
+                    pawns = pawnRow.toList()
+                )
+            }
+        }
+
+        return null
     }
 }
 
@@ -80,7 +100,8 @@ private fun Player.nextPlayer() = Player(
 
 data class GameState(
     val boardData: Array<Array<Pawn>>,
-    val player: Player
+    val player: Player,
+    val win: Win?
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

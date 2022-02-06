@@ -16,9 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.cyalc.tictactoe.data.Pawn
+import dev.cyalc.tictactoe.data.Win
 import dev.cyalc.tictactoe.ui.theme.BorderColor
 import dev.cyalc.tictactoe.ui.theme.PawnColor
 import dev.cyalc.tictactoe.ui.theme.TileColor
@@ -26,12 +28,13 @@ import dev.cyalc.tictactoe.ui.theme.TileColor
 @Composable
 fun GameBoard(
     boardData: Array<Array<Pawn>>,
+    win: Win?,
     onPawnClick: (Pawn) -> Unit
 ) {
     Card(
         border = BorderStroke(
             8.dp,
-            BorderColor
+            if (win == null) BorderColor else PawnColor
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -44,6 +47,7 @@ fun GameBoard(
                                 .weight(1f)
                                 .aspectRatio(1f),
                             data = it,
+                            win = win,
                             onClick = onPawnClick
                         )
                     }
@@ -57,10 +61,16 @@ fun GameBoard(
 fun Square(
     modifier: Modifier,
     data: Pawn,
+    win: Win?,
     onClick: (Pawn) -> Unit
 ) {
+    val isWinningPawn = win?.pawns?.contains(data) ?: false
+
     Surface(
-        modifier = modifier.border(4.dp, BorderColor),
+        modifier = modifier.border(
+            4.dp,
+            if (win != null) PawnColor else BorderColor
+        ),
         color = TileColor
     ) {
         Box(
@@ -73,8 +83,9 @@ fun Square(
                 text = data.value?.displayValue ?: "",
                 color = PawnColor,
                 fontWeight = FontWeight.Bold,
-                fontSize = 48.sp,
-                fontFamily = FontFamily.SansSerif
+                fontSize = if (isWinningPawn) 60.sp else 48.sp,
+                fontFamily = FontFamily.SansSerif,
+                textDecoration = if (isWinningPawn) TextDecoration.LineThrough else null
             )
         }
     }
