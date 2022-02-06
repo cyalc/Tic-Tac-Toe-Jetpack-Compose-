@@ -8,3 +8,13 @@ enum class PawnType(val displayValue: String) {
 }
 
 data class Point(val x: Int, val y: Int)
+
+data class Player(
+    val chosenSign: PawnType,
+    val turn: Turn
+)
+
+enum class Turn {
+    PLAYER_ONE,
+    PLAYER_TWO
+}
