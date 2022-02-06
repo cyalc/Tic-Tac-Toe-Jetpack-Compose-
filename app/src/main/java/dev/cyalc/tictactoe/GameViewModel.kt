@@ -27,6 +27,7 @@ class GameViewModel : ViewModel() {
             ),
             arrayOf(
                 Pawn(null, Point(2, 0)),
+
                 Pawn(null, Point(2, 1)),
                 Pawn(null, Point(2, 2)),
             )
@@ -50,6 +51,10 @@ class GameViewModel : ViewModel() {
             player = gameState.player.nextPlayer()
         )
     }
+
+    fun onResetClicked() {
+        gameState = initialGameState
+    }
 }
 
 private fun Player.nextPlayer() = Player(
@@ -66,8 +71,6 @@ private fun Player.nextPlayer() = Player(
 fun Array<Array<Pawn>>.copy() = Array(size) { get(it).clone() }
 
 data class GameState(val boardData: Array<Array<Pawn>>, val player: Player) {
-
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
