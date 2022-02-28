@@ -19,36 +19,36 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.cyalc.tictactoe.data.Pawn
+import dev.cyalc.tictactoe.data.Cell
 import dev.cyalc.tictactoe.data.Win
 import dev.cyalc.tictactoe.ui.theme.BorderColor
-import dev.cyalc.tictactoe.ui.theme.PawnColor
+import dev.cyalc.tictactoe.ui.theme.CellColor
 import dev.cyalc.tictactoe.ui.theme.TileColor
 
 @Composable
 fun GameBoard(
-    boardData: Array<Array<Pawn>>,
+    boardData: Array<Array<Cell>>,
     win: Win?,
-    onPawnClick: (Pawn) -> Unit
+    onCellClick: (Cell) -> Unit
 ) {
     Card(
         border = BorderStroke(
             8.dp,
-            if (win == null) BorderColor else PawnColor
+            if (win == null) BorderColor else CellColor
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
         Column {
-            boardData.map { pawnsRow ->
+            boardData.map { cellsRow ->
                 Row {
-                    pawnsRow.map {
+                    cellsRow.map {
                         Square(
                             modifier = Modifier
                                 .weight(1f)
                                 .aspectRatio(1f),
                             data = it,
                             win = win,
-                            onClick = onPawnClick
+                            onClick = onCellClick
                         )
                     }
                 }
@@ -60,16 +60,16 @@ fun GameBoard(
 @Composable
 fun Square(
     modifier: Modifier,
-    data: Pawn,
+    data: Cell,
     win: Win?,
-    onClick: (Pawn) -> Unit
+    onClick: (Cell) -> Unit
 ) {
-    val isWinningPawn = win?.pawns?.contains(data) ?: false
+    val isWinningCell = win?.cells?.contains(data) ?: false
 
     Surface(
         modifier = modifier.border(
             4.dp,
-            if (win != null) PawnColor else BorderColor
+            if (win != null) CellColor else BorderColor
         ),
         color = TileColor
     ) {
@@ -81,11 +81,11 @@ fun Square(
         ) {
             Text(
                 text = data.value?.displayValue ?: "",
-                color = PawnColor,
+                color = CellColor,
                 fontWeight = FontWeight.Bold,
-                fontSize = if (isWinningPawn) 60.sp else 48.sp,
+                fontSize = if (isWinningCell) 60.sp else 48.sp,
                 fontFamily = FontFamily.SansSerif,
-                textDecoration = if (isWinningPawn) TextDecoration.LineThrough else null
+                textDecoration = if (isWinningCell) TextDecoration.LineThrough else null
             )
         }
     }

@@ -1,8 +1,8 @@
 package dev.cyalc.tictactoe.data
 
-data class Pawn(val value: PawnType?, val position: Point)
+data class Cell(val value: CellType?, val position: Point)
 
-enum class PawnType(val displayValue: String) {
+enum class CellType(val displayValue: String) {
     X("X"),
     O("O"),
 }
@@ -10,13 +10,13 @@ enum class PawnType(val displayValue: String) {
 data class Point(val x: Int, val y: Int)
 
 data class Player(
-    val chosenSign: PawnType,
+    val chosenSign: CellType,
     val turn: Turn
 )
 
 data class Win(
     val player: Player,
-    val pawns: List<Pawn>
+    val cells: List<Cell>
 )
 
 enum class Turn {

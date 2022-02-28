@@ -8,27 +8,27 @@ import dev.cyalc.tictactoe.data.*
 
 private val initialBoard = arrayOf(
     arrayOf(
-        Pawn(null, Point(0, 0)),
-        Pawn(null, Point(0, 1)),
-        Pawn(null, Point(0, 2)),
+        Cell(null, Point(0, 0)),
+        Cell(null, Point(0, 1)),
+        Cell(null, Point(0, 2)),
     ),
     arrayOf(
-        Pawn(null, Point(1, 0)),
-        Pawn(null, Point(1, 1)),
-        Pawn(null, Point(1, 2)),
+        Cell(null, Point(1, 0)),
+        Cell(null, Point(1, 1)),
+        Cell(null, Point(1, 2)),
     ),
     arrayOf(
-        Pawn(null, Point(2, 0)),
+        Cell(null, Point(2, 0)),
 
-        Pawn(null, Point(2, 1)),
-        Pawn(null, Point(2, 2)),
+        Cell(null, Point(2, 1)),
+        Cell(null, Point(2, 2)),
     )
 )
 
 class GameViewModel : ViewModel() {
     private val initialGameState = GameState(
         player = Player(
-            chosenSign = PawnType.X,
+            chosenSign = CellType.X,
             turn = Turn.PLAYER_ONE
         ),
         boardData = initialBoard,
@@ -38,10 +38,10 @@ class GameViewModel : ViewModel() {
     var gameState by mutableStateOf(initialGameState)
         private set
 
-    fun onPawnClicked(pawn: Pawn) {
-        val tileInfo = gameState.boardData[pawn.position.x][pawn.position.y]
+    fun onCellClicked(cell: Cell) {
+        val tileInfo = gameState.boardData[cell.position.x][cell.position.y]
         if (tileInfo.value == null && gameState.win == null) {
-            nextTurn(pawn)
+            nextTurn(cell)
         }
     }
 
@@ -49,10 +49,10 @@ class GameViewModel : ViewModel() {
         gameState = initialGameState
     }
 
-    private fun nextTurn(pawnClicked: Pawn) {
+    private fun nextTurn(cellClicked: Cell) {
         val currentPlayer = gameState.player
         val currentBoard = gameState.boardData
-        val nextBoard = currentBoard.nextBoard(currentPlayer, pawnClicked)
+        val nextBoard = currentBoard.nextBoard(currentPlayer, cellClicked)
         gameState = gameState.copy(
             boardData = nextBoard,
             player = currentPlayer.nextPlayer(),
@@ -60,37 +60,91 @@ class GameViewModel : ViewModel() {
         )
     }
 
-    private fun isWin(board: Array<Array<Pawn>>, currentPlayer: Player): Win? {
-        board.forEach { pawnRow ->
-            if (pawnRow.all {
-                    it.value == currentPlayer.chosenSign
-                }) {
+    private fun isWin(board: Array<Array<Cell>>, currentPlayer: Player): Win? {
+        val boardHeight = board.size
+        val boardWidth = board[0].size
+
+        fun List<Cell>.constructWin(): Win? {
+            if (all { it.value == currentPlayer.chosenSign }) {
                 return Win(
                     player = currentPlayer,
-                    pawns = pawnRow.toList()
+                    cells = this
                 )
             }
+
+            return null
         }
 
-        return null
+        fun isRowWinning(): Win? {
+            board.forEach { cellRow ->
+                cellRow.toList().constructWin()
+            }
+            return null
+        }
+
+        fun isColumnWinning(): Win? {
+            for (y in 0 until boardHeight) {
+                val columnSet = mutableSetOf<Cell>()
+                for (x in 0 until boardWidth) {
+                    columnSet.add(board[x][y])
+                }
+
+                if (columnSet.toList().constructWin() != null) {
+                    return columnSet.toList().constructWin()
+                }
+            }
+
+            return null
+        }
+
+        fun isDiagonalWinning(): Win? {
+            val firstDiagonal = board.flatMap {
+                setOfNotNull(
+                    it.find { it.position.x == it.position.y }
+                )
+            }
+            if (firstDiagonal.all { it.value == currentPlayer.chosenSign }) {
+                return Win(
+                    player = currentPlayer,
+                    cells = firstDiagonal
+                )
+            }
+
+            val secondDiagonal = board.flatMap {
+                setOfNotNull(
+                    it.find { it.position.x + it.position.y == 2 }
+                )
+            }
+            if (secondDiagonal.all { it.value == currentPlayer.chosenSign }) {
+                return Win(
+                    player = currentPlayer,
+                    cells = firstDiagonal
+                )
+            }
+
+            return null
+        }
+
+
+        return isColumnWinning() ?: isRowWinning() ?: isDiagonalWinning()
     }
 }
 
-private fun Array<Array<Pawn>>.nextBoard(
+private fun Array<Array<Cell>>.nextBoard(
     currentPlayer: Player,
-    pawnClicked: Pawn
-): Array<Array<Pawn>> {
+    cellClicked: Cell
+): Array<Array<Cell>> {
     val boardData = this.copy()
-    val posX = pawnClicked.position.x
-    val posY = pawnClicked.position.y
-    boardData[posX][posY] = pawnClicked.copy(value = currentPlayer.chosenSign)
+    val posX = cellClicked.position.x
+    val posY = cellClicked.position.y
+    boardData[posX][posY] = cellClicked.copy(value = currentPlayer.chosenSign)
     return boardData
 }
 
 private fun Player.nextPlayer() = Player(
     chosenSign = when (chosenSign) {
-        PawnType.X -> PawnType.O
-        PawnType.O -> PawnType.X
+        CellType.X -> CellType.O
+        CellType.O -> CellType.X
     },
     turn = when (turn) {
         Turn.PLAYER_ONE -> Turn.PLAYER_TWO
@@ -99,7 +153,7 @@ private fun Player.nextPlayer() = Player(
 )
 
 data class GameState(
-    val boardData: Array<Array<Pawn>>,
+    val boardData: Array<Array<Cell>>,
     val player: Player,
     val win: Win?
 ) {
@@ -119,4 +173,4 @@ data class GameState(
     }
 }
 
-fun Array<Array<Pawn>>.copy() = Array(size) { get(it).clone() }
+fun Array<Array<Cell>>.copy() = Array(size) { get(it).clone() }

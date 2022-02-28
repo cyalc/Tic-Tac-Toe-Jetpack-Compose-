@@ -26,7 +26,7 @@ import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dev.cyalc.tictactoe.data.*
 import dev.cyalc.tictactoe.ui.theme.BackgroundColor
-import dev.cyalc.tictactoe.ui.theme.PawnColor
+import dev.cyalc.tictactoe.ui.theme.CellColor
 import dev.cyalc.tictactoe.ui.theme.TicTacToeTheme
 
 
@@ -65,7 +65,7 @@ fun MainScreen(viewModel: GameViewModel) {
         GameScreen(
             viewModel.gameState.boardData,
             viewModel.gameState.win,
-            viewModel::onPawnClicked,
+            viewModel::onCellClicked,
             viewModel::onResetClicked
         )
     }
@@ -74,9 +74,9 @@ fun MainScreen(viewModel: GameViewModel) {
 
 @Composable
 fun GameScreen(
-    boardData: Array<Array<Pawn>>,
+    boardData: Array<Array<Cell>>,
     win: Win?,
-    onPawnClicked: (Pawn) -> Unit,
+    onCellClicked: (Cell) -> Unit,
     onResetClicked: () -> Unit
 ) {
     Box(
@@ -86,7 +86,7 @@ fun GameScreen(
             .padding(16.dp),
         contentAlignment = Alignment.Center,
     ) {
-        GameBoard(boardData, win) { pawn -> onPawnClicked(pawn) }
+        GameBoard(boardData, win) { cell -> onCellClicked(cell) }
         Button(
             onClick = { onResetClicked() },
             modifier = Modifier
@@ -98,7 +98,7 @@ fun GameScreen(
         if (win != null) {
             Text(
                 text = "Player ${win.player.chosenSign.displayValue} won!",
-                color = PawnColor,
+                color = CellColor,
                 fontSize = 36.sp,
                 fontFamily = FontFamily.SansSerif,
                 fontWeight = FontWeight.Bold,
@@ -116,29 +116,29 @@ fun Preview() {
     GameScreen(
         boardData = arrayOf(
             arrayOf(
-                Pawn(null, Point(0, 0)),
-                Pawn(null, Point(0, 1)),
-                Pawn(null, Point(0, 2)),
+                Cell(null, Point(0, 0)),
+                Cell(null, Point(0, 1)),
+                Cell(null, Point(0, 2)),
             ),
             arrayOf(
-                Pawn(null, Point(1, 0)),
-                Pawn(null, Point(1, 1)),
-                Pawn(null, Point(1, 2)),
+                Cell(null, Point(1, 0)),
+                Cell(null, Point(1, 1)),
+                Cell(null, Point(1, 2)),
             ),
             arrayOf(
-                Pawn(null, Point(2, 0)),
+                Cell(null, Point(2, 0)),
 
-                Pawn(null, Point(2, 1)),
-                Pawn(null, Point(2, 2)),
+                Cell(null, Point(2, 1)),
+                Cell(null, Point(2, 2)),
             )
         ),
         win = Win(
             player = Player(
-                chosenSign = PawnType.X,
+                chosenSign = CellType.X,
                 turn = Turn.PLAYER_ONE
             ),
-            pawns = emptyList()
+            cells = emptyList()
         ),
-        onPawnClicked = {}
+        onCellClicked = {}
     ) {}
 }
